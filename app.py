@@ -34,9 +34,9 @@ def on_message(client, userdata, message):
         c=conn.cursor()
 
         c.execute("""INSERT INTO dhtreadings (temperature,
-            humidity, currentdate, currentime, device) VALUES((?), (?), date('now'),
+            humidity, currentdate, currenttime, device) VALUES((?), (?), date('now'),
             time('now'), (?))""", (dhtreadings_json['temperature'],
-            dhtreadings_json['humidity'], 'esp8266') )
+            dhtreadings_json['humidity'], dhtreadings_json['device']) )
 
         conn.commit()
         conn.close()
@@ -44,6 +44,7 @@ def on_message(client, userdata, message):
 mqttc=mqtt.Client()
 mqttc.on_connect = on_connect
 mqttc.on_message = on_message
+mqttc.username_pw_set("jakepi","jbpi1234")
 mqttc.connect("localhost",1883,60)
 mqttc.loop_start()
 
@@ -54,7 +55,10 @@ def main():
    conn=sqlite3.connect('sensordata.db')
    conn.row_factory = dict_factory
    c=conn.cursor()
-   c.execute("SELECT * FROM dhtreadings ORDER BY id DESC LIMIT 20")
+   c.execute("SELECT DISTINCT device FROM dhtreadings")
+   devices = c.fetchall()
+   print(devices)
+   c.execute("SELECT device, temperature, humidity FROM dhtreadings ORDER BY id DESC LIMIT 20")
    readings = c.fetchall()
    #print(readings)
    return render_template('main.html', readings=readings)
