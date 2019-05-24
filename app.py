@@ -58,7 +58,7 @@ def main():
    c.execute("SELECT DISTINCT device FROM dhtreadings")
    devices = c.fetchall()
    print(devices)
-   c.execute("SELECT device, temperature, humidity FROM dhtreadings ORDER BY id DESC LIMIT 20")
+   c.execute("SELECT  device, temperature, humidity FROM dhtreadings ORDER BY id DESC LIMIT 5")
    readings = c.fetchall()
    #print(readings)
    return render_template('main.html', readings=readings)
