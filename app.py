@@ -23,7 +23,7 @@ def on_message(client, userdata, message):
     if message.topic == "IoT_Data":
         print("DHT readings update")
         dhtreadings_json = json.loads(message.payload)
-	print(dhtreadings_json)
+#	print(dhtreadings_json)
         conn=sqlite3.connect('sensors.db')
         c=conn.cursor()
 	c.execute("SELECT id FROM readings ORDER BY id DESC LIMIT 1")
@@ -52,9 +52,9 @@ def main():
    c.execute("""SELECT nodes.name, readings.temperature, readings.datetime 
 		FROM nodes LEFT JOIN readings ON (nodes.id = readings.nodeid)
 		   ORDER BY readings.datetime DESC LIMIT 10;""")
-   devices = c.fetchall()
-   print(devices)
-   return render_template('main.html', readings = devices)
+   readings = c.fetchall()
+   #print(readings)
+   return render_template('main.html', readings = readings)
 
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', port=8181, debug=True)
+   app.run(host='0.0.0.0', port=8181, debug=False)
