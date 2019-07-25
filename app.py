@@ -42,6 +42,19 @@ mqttc.username_pw_set("jakepi","jbpi1234")
 mqttc.connect("localhost",1883,60)
 mqttc.loop_start()
 
+@app.route("/devices/<name>")
+def getDevice(name):
+	conn=sqlite3.connect('sensors.db')
+	conn.row_factory = dict_factory
+	c=conn.cursor()
+	c.execute("""SELECT nodes.id FROM nodes WHERE nodes.name = (?) LIMIT 1""", (name,))
+	nid = c.fetchall()
+	devID = nid[0]['id']
+	c.execute("""SELECT readings.datetime, readings.temperature,
+			 readings.humidity FROM readings WHERE readings.nodeid = (?) ORDER BY readings.datetime desc""", (devID,))
+	readings = c.fetchall()
+	return render_template('devices.html', readings = readings, name = name)
+
 @app.route("/")
 def main():
    # connects to SQLite database. File is named "sensordata.db" without the quotes
@@ -49,12 +62,9 @@ def main():
    conn=sqlite3.connect('sensors.db')
    conn.row_factory = dict_factory
    c=conn.cursor()
-   c.execute("""SELECT nodes.name, readings.temperature, readings.datetime 
-		FROM nodes LEFT JOIN readings ON (nodes.id = readings.nodeid)
-		   ORDER BY readings.datetime DESC LIMIT 10;""")
-   readings = c.fetchall()
-   #print(readings)
-   return render_template('main.html', readings = readings)
+   c.execute("""SELECT DISTINCT nodes.name From nodes""")
+   nodes = c.fetchall()
+   return render_template('home.html', nodes = nodes)
 
 if __name__ == "__main__":
    app.run(host='0.0.0.0', port=8181, debug=False)
