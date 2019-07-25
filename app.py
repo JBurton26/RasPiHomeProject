@@ -62,7 +62,9 @@ def main():
    conn=sqlite3.connect('sensors.db')
    conn.row_factory = dict_factory
    c=conn.cursor()
-   c.execute("""SELECT DISTINCT nodes.name From nodes""")
+   c.execute("""SELECT nodes.name, avg(e.temperature) as avgtemp, 
+		avg(e.humidity) as avghum FROM nodes, readings e 
+		WHERE e.nodeid=nodes.id GROUP BY e.nodeid;""")
    nodes = c.fetchall()
    return render_template('home.html', nodes = nodes)
 
