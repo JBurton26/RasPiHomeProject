@@ -1,0 +1,18 @@
+{% extends "main.html" %}
+{% block content %}
+<h1>Devices</h1>
+<table class="table table-hover">
+	<tr>
+        <th>Device</th>
+	<th>Average Temperature</th>
+	<th>Average Humidity</th>
+        </tr>
+        {% for entry in nodes %}
+		<tr>
+                <td><a href="/devices/{{entry.name}}">{{entry.name}}</a></td>
+		<td>{{entry.avgtemp}}</td>
+		<td>{{entry.avghum}}</td>
+                </tr>
+        {%endfor%}
+</table>
+{% endblock %}
