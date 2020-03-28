@@ -26,11 +26,11 @@ def on_message(client, userdata, message):
 #	print(dhtreadings_json)
         conn=sqlite3.connect('sensors.db')
         c=conn.cursor()
-	c.execute("SELECT id FROM readings ORDER BY id DESC LIMIT 1")
-	index = c.fetchall()
-	ireading = index[0][0]
-	ireading = ireading+1
-	print(ireading)
+        c.execute("SELECT id FROM readings ORDER BY id DESC LIMIT 1")
+        index = c.fetchall()
+        ireading = index[0][0]
+        ireading = ireading+1
+        print(ireading)
         c.execute("""INSERT INTO readings VALUES ((?), (?), datetime('now', 'localtime'), (?), (?))""", (ireading, dhtreadings_json['nodeid'], dhtreadings_json['temperature'], dhtreadings_json['humidity']))
         conn.commit()
         conn.close()
@@ -44,29 +44,29 @@ mqttc.loop_start()
 
 @app.route("/devices/<name>")
 def getDevice(name):
-	conn=sqlite3.connect('sensors.db')
-	conn.row_factory = dict_factory
-	c=conn.cursor()
-	c.execute("""SELECT nodes.id FROM nodes WHERE nodes.name = (?) LIMIT 1""", (name,))
-	nid = c.fetchall()
-	devID = nid[0]['id']
-	c.execute("""SELECT readings.datetime, readings.temperature,
+    conn=sqlite3.connect('sensors.db')
+    conn.row_factory = dict_factory
+    c=conn.cursor()
+    c.execute("""SELECT nodes.id FROM nodes WHERE nodes.name = (?) LIMIT 1""", (name,))
+    nid = c.fetchall()
+    devID = nid[0]['id']
+    c.execute("""SELECT readings.datetime, readings.temperature,
 			 readings.humidity FROM readings WHERE readings.nodeid = (?) ORDER BY readings.datetime desc""", (devID,))
-	readings = c.fetchall()
-	return render_template('devices.html', readings = readings, name = name)
+    readings = c.fetchall()
+    return render_template('devices.html', readings = readings, name = name)
 
 @app.route("/")
 def main():
    # connects to SQLite database. File is named "sensordata.db" without the quotes
    # WARNING: your database file should be in the same directory of the app.py file or have the correct path
-   conn=sqlite3.connect('sensors.db')
-   conn.row_factory = dict_factory
-   c=conn.cursor()
-   c.execute("""SELECT nodes.name, avg(e.temperature) as avgtemp, 
+    conn=sqlite3.connect('sensors.db')
+    conn.row_factory = dict_factory
+    c=conn.cursor()
+    c.execute("""SELECT nodes.name, avg(e.temperature) as avgtemp, 
 		avg(e.humidity) as avghum FROM nodes, readings e 
 		WHERE e.nodeid=nodes.id GROUP BY e.nodeid;""")
-   nodes = c.fetchall()
-   return render_template('home.html', nodes = nodes)
+    nodes = c.fetchall()
+    return render_template('home.html', nodes = nodes)
 
 if __name__ == "__main__":
-   app.run(host='0.0.0.0', port=8181, debug=True)
+    app.run(host='0.0.0.0', port=8181, debug=True)
