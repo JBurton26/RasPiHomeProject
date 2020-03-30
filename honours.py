@@ -11,7 +11,8 @@ import json
 import sqlite3
 import time
 ############
-# Unsure Purpose of this method, don't want to remove unless its necessary
+# Method unnecessary however left as may be used for future prototype
+# Method related to SQLite3 database function
 ############
 def dict_factory(cursor, row):
     d = {}
